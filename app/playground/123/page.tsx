@@ -1,3 +1,3 @@
 // BASE LAYOUT
-// + EDITOR INTEGRATION
+// + AI CHAT INTEGRATION
 export default function Page() { return <div>Layout Base</div>; }

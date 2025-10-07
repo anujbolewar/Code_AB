@@ -1,7 +1,9 @@
 
+"use client";
+
 import { useState } from "react"
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Github, Chrome } from "lucide-react"
-import { Link } from "@tanstack/react-router"
+import Link from "next/link"
 
 export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)

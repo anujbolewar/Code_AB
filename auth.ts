@@ -1,26 +1,40 @@
-// Import at runtime and avoid strict typing issues with the beta package
-// definitions by using `any` where necessary.
-import NextAuthDefault from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import { db } from "./lib/db";
-import authConfig from "./auth.config";
+import NextAuth from "next-auth"
+import { PrismaAdapter } from "@auth/prisma-adapter"
+import { db } from "./lib/db"
+import authConfig from "./auth.config"
 
-// @ts-expect-error - shim: NextAuth beta types are incompatible in this setup; use a
-// runtime cast to call NextAuth and re-export its helpers.
-const NextAuthAny = (NextAuthDefault as any) as (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  config: Record<string, any>
-) => // eslint-disable-next-line @typescript-eslint/no-explicit-any
-any;
+export const { handlers, signIn, signOut, auth } = NextAuth({
+    callbacks: {
+        // Allow sign in for valid users
+        async signIn({ user, account }) {
+            if (!user || !account) return false;
 
-// @ts-expect-error - call through the any shim above
-const nextAuth = NextAuthAny({
-  secret: process.env.AUTH_SECRET,
-  adapter: PrismaAdapter(db),
-  ...authConfig,
+            // Check if user exists in database
+            const existingUser = await db.user.findUnique({
+                where: { email: user.email! }
+            });
+
+            // Allow sign in if user exists or create new user through adapter
+            return true;
+        },
+        
+        // Handle JWT token
+        async jwt({ token, user }) {
+            if (user) {
+                token.id = user.id;
+            }
+            return token;
+        },
+        
+        // Handle session
+        async session({ session, token }) {
+            if (token) {
+                session.user.id = token.id as string;
+            }
+            return session;
+        }
+    },
+    secret: process.env.AUTH_SECRET,
+    adapter: PrismaAdapter(db),
+    ...authConfig
 });
-
-// `nextAuth` should be an object containing helpers like `handlers`, `signIn`,
-// `signOut`, and the middleware `auth` function. Re-export them for import
-// elsewhere in the app.
-export const { handlers, signIn, signOut, auth } = nextAuth;

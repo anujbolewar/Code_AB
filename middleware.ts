@@ -1,24 +1,17 @@
+import { auth } from "@/auth.edge";
+import { NextRequest } from "next/server";
+
 import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
   publicRoutes,
   authRoutes,
 } from "@/routes";
-// use the middleware `auth` exported from `auth.ts` which is a callable
-// middleware function (destructured from NextAuth inside `auth.ts`).
-import { auth as authMiddleware } from "@/auth";
 
-export default authMiddleware((req: Request) => {
-  // `nextUrl` is available on the Next.js middleware `Request` via the NextURL
-  // helper attached by the runtime. TS can't infer it here, so use any for
-  // the destructured piece to avoid excessive typing in this small middleware.
-  // Keep runtime usage the same.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { nextUrl }: any = req as any;
-  // `auth` middleware augments the request with a `user` property at runtime.
-  // Cast to any to access it without changing global types here.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const isLoggedIn = !!(req as any).user;
+export default auth((req: NextRequest) => {
+  const { nextUrl } = req;
+  const isLoggedIn = !!req.user;
+  // Check if the route is an API auth route (like /api/auth/signin, /api/auth/callback, etc.)
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
@@ -29,14 +22,20 @@ export default authMiddleware((req: Request) => {
 
   if (isAuthRoute) {
     if (isLoggedIn) {
+      // User is already logged in, redirect to dashboard/home
       return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, req.url));
     }
+    // User is not logged in, allow access to auth routes (sign-in page)
+    return null;
   }
   
   if (!isLoggedIn && !isPublicRoute) {
+    // User is not logged in and trying to access protected route
     return Response.redirect(new URL("/auth/sign-in", nextUrl));
   }
-    return null;
+  
+  // Allow access to public routes or authenticated users
+  return null;
 
 });
 

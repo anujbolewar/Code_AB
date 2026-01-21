@@ -1,3 +1,154 @@
+
+## AI Request Flow
+
+```mermaid
+flowchart TD
+	%% Client Layer
+	subgraph Client["Client (Browser)"]
+		UI["Next.js App (UI)"]
+		Dashboard["Dashboard"]
+		Playground["Playground / Editor"]
+		AIChat["AI Chat Panel"]
+		UI --> Dashboard
+		UI --> Playground
+		UI --> AIChat
+	end
+
+	%% Frontend Application Layer
+	subgraph Frontend["Frontend (Next.js App Router)"]
+		Layouts["Layouts & Providers"]
+		Modules["Feature Modules (modules/*)"]
+		State["Client & Server State"]
+	end
+
+	%% Backend Layer
+	subgraph Backend["Backend (Next.js API)"]
+		API["API Routes"]
+		Services["Service Layer"]
+		Domain["Domain Logic"]
+		Auth["Auth & Session (NextAuth)"]
+	end
+
+	%% AI Layer
+	subgraph AI["AI Orchestration Layer"]
+		Context["Context Builder"]
+		Prompt["Prompt Composer"]
+		ModelRouter["Model Router"]
+		Stream["Streaming Response"]
+	end
+
+	%% Execution Layer
+	subgraph Exec["Execution Layer"]
+		WebContainers["WebContainers (Sandboxed)"]
+	end
+
+	%% Database
+	subgraph DB["Data Layer"]
+		Prisma["Prisma ORM"]
+		Postgres["PostgreSQL"]
+	end
+
+	%% External AI Providers
+	subgraph Providers["AI Providers"]
+		OpenAI["OpenAI / External LLMs"]
+		LocalLLM["Local / Future Models"]
+	end
+
+	%% Connections
+	UI --> Frontend
+	Frontend --> API
+	API --> Auth
+	API --> Services
+	Services --> Domain
+
+	Services --> Context
+	Context --> Prompt
+	Prompt --> ModelRouter
+	ModelRouter --> OpenAI
+	ModelRouter --> LocalLLM
+	ModelRouter --> Stream
+	Stream --> UI
+
+	Services --> Prisma
+	Prisma --> Postgres
+
+	Playground --> WebContainers
+```
+# CodeAB – System Architecture
+
+```mermaid
+flowchart TD
+	%% Client Layer
+	subgraph Client["Client (Browser)"]
+		UI["Next.js App (UI)"]
+		Dashboard["Dashboard"]
+		Playground["Playground / Editor"]
+		AIChat["AI Chat Panel"]
+		UI --> Dashboard
+		UI --> Playground
+		UI --> AIChat
+	end
+
+	%% Frontend Application Layer
+	subgraph Frontend["Frontend (Next.js App Router)"]
+		Layouts["Layouts & Providers"]
+		Modules["Feature Modules (modules/*)"]
+		State["Client & Server State"]
+	end
+
+	%% Backend Layer
+	subgraph Backend["Backend (Next.js API)"]
+		API["API Routes"]
+		Services["Service Layer"]
+		Domain["Domain Logic"]
+		Auth["Auth & Session (NextAuth)"]
+	end
+
+	%% AI Layer
+	subgraph AI["AI Orchestration Layer"]
+		Context["Context Builder"]
+		Prompt["Prompt Composer"]
+		ModelRouter["Model Router"]
+		Stream["Streaming Response"]
+	end
+
+	%% Execution Layer
+	subgraph Exec["Execution Layer"]
+		WebContainers["WebContainers (Sandboxed)"]
+	end
+
+	%% Database
+	subgraph DB["Data Layer"]
+		Prisma["Prisma ORM"]
+		Postgres["PostgreSQL"]
+	end
+
+	%% External AI Providers
+	subgraph Providers["AI Providers"]
+		OpenAI["OpenAI / External LLMs"]
+		LocalLLM["Local / Future Models"]
+	end
+
+	%% Connections
+	UI --> Frontend
+	Frontend --> API
+	API --> Auth
+	API --> Services
+	Services --> Domain
+
+	Services --> Context
+	Context --> Prompt
+	Prompt --> ModelRouter
+	ModelRouter --> OpenAI
+	ModelRouter --> LocalLLM
+	ModelRouter --> Stream
+	Stream --> UI
+
+	Services --> Prisma
+	Prisma --> Postgres
+
+	Playground --> WebContainers
+```
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
